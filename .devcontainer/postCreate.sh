@@ -2,30 +2,15 @@
 
 echo "Setting up Memories development environment..."
 
-# Install dependencies
-make dev-setup
 
 # Fix permissions
-chown -R www-data:www-data /var/www
-git config --global --add safe.directory /var/www/html/custom_apps/memories
+chown -R www-data:www-data /var/www/html/custom_apps
 
-# Install Nextcloud
-sudo -E -u www-data php /var/www/html/occ maintenance:install \
-    --verbose \
-    --database=mysql \
-    --database-name=nextcloud \
-    --database-host=db \
-    --database-user=nextcloud \
-    --database-pass=nextcloud \
-    --admin-user=admin \
-    --admin-pass=admin
+# Configure Memories for system ExifTool
+sudo -u www-data php /var/www/html/occ config:system:set memories.exiftool --value="/usr/bin/exiftool"
+sudo -u www-data php /var/www/html/occ config:system:set memories.exiftool_no_local --value=false --type=boolean
 
-# Enable debug mode in Nextcloud
-sudo -E -u www-data php /var/www/html/occ config:system:set --type bool --value true debug
+# Fix temp directory permissions
+chmod 777 /tmp
 
-# Enable Memories
-sudo -E -u www-data php /var/www/html/occ app:enable memories
-sudo -E -u www-data php /var/www/html/occ memories:index
-
-# Build JavaScript
-make build-js
+echo 'Memories development environment ready!'
